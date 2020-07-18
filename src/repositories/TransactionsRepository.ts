@@ -41,14 +41,16 @@ class TransactionsRepository extends Repository<Transaction> {
     return balance;
   }
 
-  // public invalidTransation(value: number, type: string): number | null {
-  //   const balance = this.getBalance();
-
-  //   if (value > balance.total && type === 'outcome') {
-  //     return null;
-  //   }
-  //   return value;
-  // }
+  public invalidTransation(
+    value: number,
+    type: string,
+    balance: Balance,
+  ): number | null {
+    if (value > balance.total && type === 'outcome') {
+      return null;
+    }
+    return value;
+  }
 }
 
 export default TransactionsRepository;

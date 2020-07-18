@@ -21,6 +21,22 @@ class CreateTransactionService {
   }: Request): Promise<Transaction> {
     const transactionRepository = getCustomRepository(TransactionRepository);
     const categoryRepository = getRepository(Category);
+    const isCorrectType = transactionRepository.compareType(type);
+    const transactions = await transactionRepository.find();
+    const balance = await transactionRepository.getBalance(transactions);
+    const isValidTransation = transactionRepository.invalidTransation(
+      value,
+      type,
+      balance,
+    );
+
+    if (isValidTransation === null) {
+      throw new AppError('Invalid transation', 400);
+    }
+
+    if (isCorrectType === false) {
+      throw new AppError('Incorrect type. Must be income or outcome', 400);
+    }
 
     const checkCategoryExists = await categoryRepository.findOne({
       where: { title: category },
@@ -31,6 +47,7 @@ class CreateTransactionService {
         title: category,
       });
       await categoryRepository.save(newCategory);
+
       const transaction = await transactionRepository.create({
         title,
         type,
